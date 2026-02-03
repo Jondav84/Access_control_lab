@@ -1,1 +1,65 @@
-drwxrwx--- 2 project_lead ui_team 4096 Jan 30 18:31 ui/
+# UI Directory Permissions Transcript
+# Directory: ProjectX_hardened_live/ui/
+# Goal: ui_team owns this namespace; other dev teams + reviewers may read/traverse; no cross-team writes.
+
+## 1) Baseline (owner/group + chmod)
+
+# Command(s) used:
+#   sudo chown project_lead:ui_team ProjectX_hardened_live/ui/
+#   sudo chmod 770 ProjectX_hardened_live/ui/
+
+# Result (ls -ld):
+#   drwxrwx--- 2 project_lead ui_team 4096 Jan 30 18:31 ProjectX_hardened_live/ui/
+
+## 2) Access ACLs (incremental trust decisions)
+
+# core_team:
+# Purpose: allow read/traverse across UI code for integration and shared interfaces
+# Scope: read + traverse (no write)
+# Command:
+#   sudo setfacl -m g:core_team:r-x ProjectX_hardened_live/ui/
+
+# api_team:
+# Purpose: allow read/traverse across UI code for integration and shared interfaces
+# Scope: read + traverse (no write)
+# Command:
+#   sudo setfacl -m g:api_team:r-x ProjectX_hardened_live/ui/
+
+# reviewers:
+# Purpose: allow read/traverse across UI code for audit and review
+# Scope: read + traverse (no write)
+# Command:
+#   sudo setfacl -m g:reviewers:r-x ProjectX_hardened_live/ui/
+
+## 3) Default ACLs (inheritance template)
+
+# Purpose: ensure newly created files and subdirectories in ui/ inherit correct visibility
+# Notes:
+#   - ui_team retains full ownership and write access.
+#   - core_team, api_team, and reviewers inherit read/traverse only.
+#   - testers are excluded (no source visibility).
+
+# Command(s) used:
+#   sudo setfacl -d -m g:core_team:r-x ProjectX_hardened_live/ui/
+#   sudo setfacl -d -m g:api_team:r-x ProjectX_hardened_live/ui/
+#   sudo setfacl -d -m g:reviewers:r-x ProjectX_hardened_live/ui/
+
+# Final permissions structure (getfacl -p ProjectX_hardened_live/ui):
+# file: ProjectX_hardened_live/ui
+# owner: project_lead
+# group: ui_team
+user::rwx
+group::rwx
+group:core_team:r-x
+group:api_team:r-x
+group:reviewers:r-x
+mask::rwx
+other::---
+default:user::rwx
+default:group::rwx
+default:group:core_team:r-x
+default:group:api_team:r-x
+default:group:reviewers:r-x
+default:mask::rwx
+default:other::---
+
