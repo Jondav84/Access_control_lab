@@ -1,1 +1,31 @@
-drwxr-x--- 2 project_lead emp_admin 4096 Jan 30 19:13 tests/bin/
+# Testing Bin Directory Permissions Transcript
+# Directory: ProjectX_hardened_live/testing/bin/
+# Goal: Execution corridor. project_lead publishes binaries; testers execute only; emp_admin observes.
+
+## 1) Baseline (owner/group + chmod)
+
+# Command(s) used:
+#   sudo chown project_lead:emp_admin ProjectX_hardened_live/testing/bin/
+#   sudo chmod 750 ProjectX_hardened_live/testing/bin/
+
+# Result (ls -ld):
+#   drwxr-x--- 2 project_lead emp_admin 4096 Feb  2 21:50 ProjectX_hardened_live/testing/bin/
+
+## 2) Access ACLs (incremental trust decisions)
+
+# testers: 
+# Purpose: allow execution of approved test binaries only
+# Scope: execute-only (no directory listing, no read)
+# Command:
+#   sudo setfacl -m g:testers:--x ProjectX_hardened_live/testing/bin/
+
+# Final permissions structure (getfacl -p ProjectX_hardened_live/testing/bin/):
+# file: ProjectX_hardened_live/testing/bin/
+# owner: project_lead
+# group: emp_admin
+user::rwx
+group::r-x
+group:testers:--x
+mask::r-x
+other::---
+
