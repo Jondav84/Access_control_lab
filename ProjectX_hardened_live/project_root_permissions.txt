@@ -1,0 +1,82 @@
+# Project Root Permissions Transcript
+# Directory: ProjectX_hardened_live/
+# Goal: Structural gate (not a workspace). Enforce traverse-only for teams/testers/reviewers.
+
+## 1) Baseline (owner/group chmod)
+
+# Command(s) used:
+#   sudo chown project_lead:emp_admin ProjectX_hardened_live
+#   sudo chmod 750 ProjectX_hardened_live
+
+# Result (ls -ld):
+#   drwxr-x--- 7 project_lead emp_admin 4096 Jan 31 11:20 ProjectX_hardened_live/
+
+ 
+## 2) Access ACLs (incremental trust decisions)
+
+# core_team:
+# Purpose: allow traversal into ProjectX_hardened_live/ to reach core/, docs/core/, tests/bin namespaces
+# Scope: traversal only (no directory listing)
+# Command:
+#   sudo setfacl -m g:core_team:--x ProjectX_hardened_live/
+
+# api_team:
+# Purpose: allow traversal into ProjectX_hardened_live/ to reach api/, docs/api/, tests/bin/ namespaces
+# Scope: traversal only (no directory listing)
+# Command:
+#   sudo setfacl -m g:api_team:--x ProjectX_hardened_live/
+
+# ui_team:
+# Purpose: allow traversal into ProjectX_hardened_live/ to reach ui/, docs/ui/, tests/bin namespaces
+# Scope: traversal only (no directory listing)
+# Command:
+#   sudo setfacl -m g:ui_team:--x ProjectX_hardened_live/
+
+# reviewers:
+# Purpose: allow traversal into ProjectX_hardened_live/ to reach documentation and review targets
+# Scope: traversal only (no directory listing)
+# Command:
+#   sudo setfacl -m g:reviewers:--x ProjectX_hardened_live/
+
+# testers:
+# Purpose: allow traversal into ProjectX_hardened_live/ ONLY to reach tests/bin execution corridor
+# Scope: traversal only (no directory listing)
+# Command:
+#   sudo setfacl -m g:testers:--x ProjectX_hardened_live/
+
+
+## 3) Default ACLs (inheritance template)
+
+# Purpose: prevent permission drift for future top-level directories.
+# Notes:
+#   - Dev teams + reviewers inherit traversal-only at the project root boundary.
+#   - Testers are excluded from defaults to avoid automatic traversal of future top-level namespaces
+#
+# Command(s) used:
+#   sudo setfacl -d -m g:core_team:--x ProjectX_hardened_live/
+#   sudo setfacl -d -m g:api_team:--x ProjectX_hardened_live/
+#   sudo setfacl -d -m g:ui_team:--x ProjectX_hardened_live/
+#   sudo setfacl -d -m g:reviewers:--x ProjectX_hardened_live/
+
+# Final permissions structure (getfacl -p ProjectX_hardened_live): 
+# file: ProjectX_hardened_live/
+# owner: project_lead
+# group: emp_admin
+user::rwx
+group::r-x
+group:core_team:--x
+group:api_team:--x
+group:ui_team:--x
+group:testers:--x
+group:reviewers:--x
+mask::r-x
+other::---
+default:user::rwx
+default:group::r-x
+default:group:core_team:--x
+default:group:api_team:--x
+default:group:ui_team:--x
+default:group:reviewers:--x
+default:mask::r-x
+default:other::---
+
