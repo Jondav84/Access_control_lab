@@ -1,0 +1,43 @@
+# Testing Notes Directory Permissions Transcript
+# Directory: ProjectX_hardened_live/testing/notes/
+# Goal: Read-only guidance channel for testers. Authored by project_lead.
+
+## 1) Baseline (owner/group + chmod)
+
+# Command(s) used:
+#   sudo chown project_lead:emp_admin ProjectX_hardened_live/testing/notes/
+#   sudo chmod 750 ProjectX_hardened_live/testing/notes/
+
+# Result (ls -ld):
+#   drwxr-x--- 2 project_lead emp_admin 4096 Feb  2 21:56 ProjectX_hardened_live/testing/notes/
+
+## 2) Access ACLs (incremental trust decisions)
+
+# testers:
+# Purpose: allow read/traverse access to testing guidance published by project_lead
+# Scope: read + traverse (no write)
+# Command:
+#   sudo setfacl -m g:testers:r-x ProjectX_hardened_live/testing/notes/
+
+## 3) Default ACLs (inheritance template)
+
+# Purpose: ensure future notes subdirectories remain readable by testers
+# Scope: read + traverse only (no write)
+# Command:
+#   sudo setfacl -d -m g:testers:r-x ProjectX_hardened_live/testing/notes/
+
+
+# Final permissions structure (getfacl -p ProjectX_hardened_live/testing/notes/):
+# file: testing/notes
+# owner: project_lead
+# group: emp_admin
+user::rwx
+group::r-x
+group:testers:r-x
+mask::r-x
+other::---
+default:user::rwx
+default:group::r-x
+default:group:testers:r-x
+default:mask::r-x
+default:other::---
