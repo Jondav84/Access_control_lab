@@ -31,7 +31,7 @@ Both are valuable. They teach different skills.
 - Single accountable authority.
 - Owns the entire project tree.
 - Full read/write/execute across all project paths.
-- Approves changes to shared interfaces and production paths.
+- **Sole publisher** into production paths (including published docs and binaries).
 
 Ownership exists for accountability, not collaboration.
 
@@ -40,10 +40,10 @@ Ownership exists for accountability, not collaboration.
 ### Project Stewards (Administrative / Governance Layer)
 - Small, explicitly assigned group (e.g., project lead + team leads).
 - No ownership of the project.
-- No blanket write access to team-owned code.
+- No blanket write access to team implementation directories or binary outputs.
 - Coordinates governance paths only.
 
-Permissions:
+Permissions (typical):
 - Read/traverse at the project root.
 - Write only to explicitly designated governance areas.
 - No write access to team-owned implementation directories or binary outputs.
@@ -53,14 +53,16 @@ Governance access does not imply development authority.
 ---
 
 ### Development Teams
-- Full write access only to their own scoped directories.
-- Read/traverse access to other teams’ code/docs where required for integration.
+- Full write access only to their own scoped **implementation** directories.
+- Read/traverse access to other teams’ code where required for integration.
 - No write access to other teams’ code.
 
-Purpose:
-- Prevent cross-team breakage.
-- Enforce interface contracts.
-- Limit blast radius of mistakes or sabotage.
+**Documentation workflow (Publish-only):**
+- Teams author docs in **separate team-owned work areas** (outside the published docs tree).
+- Teams submit docs through team leads to the project lead.
+- Project lead proofs and **publishes** to `ProjectX/docs/<team>/`.
+
+Teams have **read-only** access to published docs.
 
 ---
 
@@ -100,16 +102,17 @@ This model uses:
 
 ### Baseline permissions (chmod/chown)
 
-- **Project root**: `750` (owner: project lead, group: emp_admin/stewards)
-  - Root is a structural boundary, not a working directory.
+- **Project root**: `750` (owner: project lead, group: emp_admin/stewards)  
+  Root is a structural boundary, not a working directory.
 
-- **Team implementation directories**: `770` (owner: project lead, group: owning team)
-  - Team-only writes; no outsider access by default.
+- **Team implementation directories**: `770` (owner: project lead, group: owning team)  
+  Team-only writes; no outsider access by default.
 
-- **Team docs namespaces** (if used): `770` (owner: project lead, group: owning team)
+- **Published docs namespaces**: `750` (owner: project lead, group: emp_admin/stewards)  
+  Publish-only. Teams/readers get visibility via ACLs; no team write.
 
-- **Tests and binary output paths**:
-  - `tests/` and `tests/bin/` are `750` (owner: project lead, group: stewards)
+- **Testing and binary output paths**:
+  - `testing/` and `testing/bin/` are `750` (owner: project lead, group: stewards)
   - Build authority is singular (project lead or CI acting as project lead)
 
 Write access is never implicit. Writable locations are explicitly designated.
@@ -197,16 +200,3 @@ This model does not attempt to:
 - Solve social or organizational conflict
 
 It reduces the damage such failures can cause.
-
----
-
-## Philosophy
-
-Access is a risk surface, not a reward.
-
-Governance exists to coordinate, not to override.
-
-Permissions should assume:
-- failure
-- pressure
-- incentives changing faster than access reviews
