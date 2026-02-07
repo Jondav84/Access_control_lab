@@ -1,0 +1,69 @@
+# Docs Root Permissions Transcript
+# Directory: ProjectX_hardened_live/docs/
+# Goal: Shared documentation entry point. Structural gate only; writing occurs in scoped subdirectories.
+
+## 1) Baseline (owner/group + chmod)
+
+# Command(s) used:
+#   sudo chown project_lead:emp_admin ProjectX_hardened_live/docs/
+#   sudo chmod 770 ProjectX_hardened_live/docs/
+
+# Result (ls -ld):
+#   drwxrwx--- 5 project_lead emp_admin 4096 Feb  3 23:34 ProjectX_hardened_live/docs/
+
+
+## 2) Access ACLs (incremental trust decisions)
+
+# core_team:
+# Purpose: read/traverse shared documentation while developing
+# Scope: read + traverse (no write)
+# Command:
+#   sudo setfacl -m g:core_team:r-x ProjectX_hardened_live/docs/
+
+# api_team:
+# Purpose: read/traverse shared documentation while developing
+# Scope: read + traverse (no write)
+# Command:
+#   sudo setfacl -m g:api_team:r-x ProjectX_hardened_live/docs/
+
+# ui_team:
+# Purpose: read/traverse shared documentation while developing
+# Scope: read + traverse (no write)
+# Command:
+#   sudo setfacl -m g:ui_team:r-x ProjectX_hardened_live/docs/
+
+# reviewers:
+# Purpose: read/traverse shared documentation for audit and review
+# Scope: read + traverse (no write)
+# Command:
+#   sudo setfacl -m g:reviewers:r-x ProjectX_hardened_live/docs/
+
+## 3) Default ACLs (inheritance template)
+
+# Purpose: ensure newly created doc namespaces inherit shared visibility
+# Scope: read + traverse (no write)
+# Notes:
+#   - Testers excluded (not required for documentation access)
+# Command:
+#   sudo setfacl -d -m g:core_team:r-x,g:api_team:r-x,g:ui_team:r-x,g:reviewers:r-x ProjectX_hardened_live/docs/
+
+# Final permissions structure (getfacl -p ProjectX_hardened_live/docs/):
+# file: ProjectX_hardened_live/docs/
+# owner: project_lead
+# group: emp_admin
+user::rwx
+group::rwx
+group:core_team:r-x
+group:api_team:r-x
+group:ui_team:r-x
+group:reviewers:r-x
+mask::rwx
+other::---
+default:user::rwx
+default:group::rwx
+default:group:core_team:r-x
+default:group:api_team:r-x
+default:group:ui_team:r-x
+default:group:reviewers:r-x
+default:mask::rwx
+default:other::---
