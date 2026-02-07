@@ -1,6 +1,6 @@
 # Docs Core Directory Permissions Transcript
 # Directory: ProjectX_hardened_live/docs/core/
-# Goal: Team-authored documentation workspace for core-related docs. Content is authored by teams and submitted to project_lead for proofing and publication.
+# Goal: Published documentation only. project_lead proofs and publishes; all other roles are read-only consumers.
 
 ## 1) Baseline (owner/group + chmod)
 
@@ -9,46 +9,43 @@
 #   sudo chmod 750 ProjectX_hardened_live/docs/core/
 
 # Result (ls -ld):
-#   drwxr-x--- 2 project_lead emp_admin 4096 Jan 30 17:32 ProjectX_hardened_live/docs/core/
+#   drwxr-x--- 2 project_lead emp_admin 4096 Feb  3 23:34 ProjectX_hardened_live/docs/core/
 
 ## 2) Access ACLs (incremental trust decisions)
 
 # core_team:
-# Purpose: allow authorship of documentation prior to submission for publication by project_lead
-# Scope: read + write + traverse
+# Purpose: allow read/traverse of published core documentation
+# Scope: read + traverse (no write)
 # Command:
-#   sudo setfacl -m g:core_team:rwx ProjectX_hardened_live/docs/core/
+#   sudo setfacl -m g:core_team:r-x ProjectX_hardened_live/docs/core/
 
 # api_team:
-# Purpose: allow cross-team authorship of shared interface documentation prior to submission for publication
-# Scope: read + write + traverse
+# Purpose: allow read/traverse of published core documentation for integration
+# Scope: read + traverse (no write)
 # Command:
-#   sudo setfacl -m g:api_team:rwx ProjectX_hardened_live/docs/core/
+#   sudo setfacl -m g:api_team:r-x ProjectX_hardened_live/docs/core/
 
 # ui_team:
-# Purpose: allow cross-team authorship of shared interface documentation prior to submission for publication
-# Scope: read + write + traverse
+# Purpose: allow read/traverse of published core documentation for UI dependency reference
+# Scope: read + traverse (no write)
 # Command:
-#   sudo setfacl -m g:ui_team:rwx ProjectX_hardened_live/docs/core/
+#   sudo setfacl -m g:ui_team:r-x ProjectX_hardened_live/docs/core/
 
 # reviewers:
-# Purpose: allow read-only access for documentation review prior to publication by project_lead
+# Purpose: allow read/traverse of published core documentation for audit/review
 # Scope: read + traverse (no write)
 # Command:
 #   sudo setfacl -m g:reviewers:r-x ProjectX_hardened_live/docs/core/
 
 ## 3) Default ACLs (inheritance template)
 
-# Purpose: ensure newly created files and subdirectories in docs/core/ inherit correct authorship + review visibility
+# Purpose: enforce publish-only behavior for all future files/subdirectories
 # Notes:
-#   - project_lead remains the owner/publisher.
-#   - emp_admin retains baseline r-x oversight via group mode.
-#   - core_team, api_team, ui_team inherit read/write/traverse for authoring.
-#   - reviewers inherit read/traverse only.
-#   - testers excluded (no documentation access required).
+#   - project_lead is the sole publisher
+#   - teams submit documentation externally
 #
 # Command:
-#   sudo setfacl -d -m g:core_team:rwx,g:api_team:rwx,g:ui_team:rwx,g:reviewers:r-x ProjectX_hardened_live/docs/core/
+#   sudo setfacl -d -m g:core_team:r-x,g:api_team:r-x,g:ui_team:r-x,g:reviewers:r-x ProjectX_hardened_live/docs/core/
 
 # Final permissions structure (getfacl -p ProjectX_hardened_live/docs/core/):
 # file: ProjectX_hardened_live/docs/core/

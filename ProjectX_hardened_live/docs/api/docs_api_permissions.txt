@@ -1,1 +1,67 @@
-drwxrwx--- 2 project_lead api_team 4096 Jan 30 17:32 ProjectX/docs/api/
+# Docs API Directory Permissions Transcript
+# Directory: ProjectX_hardened_live/docs/api/
+# Goal: Published documentation only. project_lead proofs and publishes; all other roles are read-only consumers.
+
+## 1) Baseline (owner/group + chmod)
+
+# Command(s) used:
+#   sudo chown project_lead:emp_admin ProjectX_hardened_live/docs/api/
+#   sudo chmod 750 ProjectX_hardened_live/docs/api/
+
+# Result (ls -ld):
+#   drwxr-x--- 2 project_lead emp_admin 4096 Feb  3 23:34 ProjectX_hardened_live/docs/api/
+
+## 2) Access ACLs (incremental trust decisions)
+
+# core_team:
+# Purpose: allow read/traverse of published API documentation
+# Scope: read + traverse (no write)
+# Command:
+#   sudo setfacl -m g:core_team:r-x ProjectX_hardened_live/docs/api/
+
+# api_team:
+# Purpose: allow read/traverse of published API documentation
+# Scope: read + traverse (no write)
+# Command:
+#   sudo setfacl -m g:api_team:r-x ProjectX_hardened_live/docs/api/
+
+# ui_team:
+# Purpose: allow read/traverse of published API documentation for UI integration
+# Scope: read + traverse (no write)
+# Command:
+#   sudo setfacl -m g:ui_team:r-x ProjectX_hardened_live/docs/api/
+
+# reviewers:
+# Purpose: allow read/traverse of published API documentation for audit/review
+# Scope: read + traverse (no write)
+# Command:
+#   sudo setfacl -m g:reviewers:r-x ProjectX_hardened_live/docs/api/
+
+## 3) Default ACLs (inheritance template)
+
+# Purpose: enforce publish-only behavior for all future files/subdirectories
+#
+# Command:
+#   sudo setfacl -d -m g:core_team:r-x,g:api_team:r-x,g:ui_team:r-x,g:reviewers:r-x ProjectX_hardened_live/docs/api/
+
+# Final permissions structure (getfacl -p ProjectX_hardened_live/docs/api/):
+# file: ProjectX_hardened_live/docs/api/
+# owner: project_lead
+# group: emp_admin
+user::rwx
+group::r-x
+group:core_team:r-x
+group:api_team:r-x
+group:ui_team:r-x
+group:reviewers:r-x
+mask::r-x
+other::---
+default:user::rwx
+default:group::r-x
+default:group:core_team:r-x
+default:group:api_team:r-x
+default:group:ui_team:r-x
+default:group:reviewers:r-x
+default:mask::r-x
+default:other::---
+
