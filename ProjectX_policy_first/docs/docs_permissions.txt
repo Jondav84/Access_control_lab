@@ -1,0 +1,93 @@
+# ProjectX_policy_first — docs/ Directory Construction Transcript
+# Model: Reference Architecture (Policy-First)
+# Scope: Publish-only documentation root (all teams)
+# Purpose: Provide read-only access to published documentation for teams and
+#          reviewers while reserving all write/publish authority to project_lead.
+#          Testers are explicitly excluded.
+
+############################################################
+## 1) Directory Creation (policy owner identity)
+############################################################
+
+# Command(s) used:
+#   sudo -u project_lead mkdir -p ProjectX_policy_first/docs
+
+# Result (initial state; ls -ld):
+#   drwxr-x---+ 2 project_lead project_lead 4096 <date> ProjectX_policy_first/docs/
+
+# Notes:
+# - Directory is created as project_lead to preserve ACL inheritance.
+# - Group initially resolves to project_lead’s primary group and must be normalized.
+
+
+############################################################
+## 2) Ownership Normalization (governance continuity)
+############################################################
+
+# Command(s) used:
+#   sudo chown project_lead:emp_admin ProjectX_policy_first/docs
+
+# Result (ls -ld):
+#   drwxr-x---+ 2 project_lead emp_admin 4096 <date> ProjectX_policy_first/docs/
+
+# Notes:
+# - emp_admin is the steward/governance group for published documentation.
+# - This step is mandatory; ACLs do not control owning group.
+
+
+############################################################
+## 3) Access ACL Normalization (tester exclusion)
+############################################################
+
+# Command(s) used:
+#   sudo setfacl -x g:testers ProjectX_policy_first/docs
+#   sudo setfacl -d -x g:testers ProjectX_policy_first/docs
+
+# Result (getfacl excerpt):
+#   (no group:testers entry present)
+#   (no default:group:testers entry present)
+
+# Notes:
+# - Documentation is not visible to testers.
+# - Prevents both read access and traversal-based reconnaissance.
+# - Default ACL cleanup ensures testers cannot reappear on child namespaces.
+
+
+############################################################
+## 4) Group Inheritance Enforcement (setgid)
+############################################################
+
+# Command(s) used:
+#   sudo chmod g+s ProjectX_policy_first/docs
+
+# Result (ls -ld):
+#   drwxr-s---+ 2 project_lead emp_admin 4096 <date> ProjectX_policy_first/docs/
+
+# Notes:
+# - Ensures all child directories inherit group emp_admin.
+# - Prevents group drift when directories are created as project_lead.
+# - setgid is applied here intentionally and nowhere above this boundary.
+
+
+############################################################
+## 5) Boundary Verification
+############################################################
+
+# Command(s) used:
+#   ls -ld ProjectX_policy_first/docs
+#   getfacl ProjectX_policy_first/docs
+
+# Verified Properties:
+# - Owner: project_lead
+# - Group: emp_admin
+# - Mode: 750 (with setgid)
+# - Access ACL:
+#     * core_team/api_team/ui_team/reviewers: r-x
+#     * testers: absent
+# - Default ACL:
+#     * same as access ACL (inheritance-safe)
+
+# Conclusion:
+# - docs/ is a correct publish-only documentation root.
+# - Group continuity is enforced by setgid.
+# - Safe parent for docs/core, docs/api, docs/ui namespaces.

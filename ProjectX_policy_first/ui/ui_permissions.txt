@@ -1,0 +1,110 @@
+# ProjectX_policy_first - ui/ Directory Construction Transcript
+# Model: Reference Architecture (Policy-First)
+# Scope: Team-owned implementation namespace (ui team)
+# Purpose: Allow ui_team full write access while restricting all other roles to read/traverse visibility only. No tester access permitted.
+
+############################################################
+## 1) Directory Creation (inherited policy)
+############################################################
+
+# Command(s) used:
+#   sudo -u project_lead mkdir -p ProjectX_policy_first/ui
+
+# Result (initial inherited state; ls -ld):
+#   drwxr-x---+ 2 project_lead project_lead 4096 <date> ProjectX_policy_first/ui/
+
+# Notes:
+# - ui/ inherits the root boundary policy until overridden
+
+############################################################
+## 2) Ownership Assignment (team accountability)
+############################################################
+
+# Command(s) used:
+#   sudo chown project_lead:ui_team ProjectX_policy_first/ui
+
+# Result (ls -ld):
+#   drwxr-x---+ 2 project_lead ui_team 4096 <date> ProjectX_policy_first/ui
+
+############################################################
+## 3) Baseline Permission Boundary (team-writable)
+############################################################
+
+# Command(s) used:
+#   sudo chmod 770 ProjectX_policy_first/ui
+
+# Result (ls -ld):
+#   drwxrwx---+ 2 project_lead ui_team 4096 <date> ProjectX_policy_first/ui
+
+# Notes:
+# - ui_team gets write via mode 770 (baseline), not via named ACL.
+
+############################################################
+## 4) Access ACL Cleanup (remove invalid inherited role: testers)
+############################################################
+
+# Command(s) used:
+#   sudo setfacl -x g:testers ProjectX_policy_first/ui
+#   sudo setfacl -d -x g:testers ProjectX_policy_first/ui
+
+# Result (getfacl excerpt):
+#   (no group:testers entry present)
+#   (no default:group:testers entry present)
+
+############################################################
+## 5) Remove redundant named ui_team ACL entries (return to baseline-driven)
+############################################################
+
+# Command(s) used (ACL):
+#   sudo setfacl -x g:ui_team ProjectX_policy_first/ui
+#   sudo setfacl -d -x g:ui_team ProjectX_policy_first/ui
+
+# Result (getfacl excerpt):
+#   (no group:ui_team entry present)
+#   (no default:group:ui_team entry present)
+
+# Notes:
+# - ui-team authority is expressed via ownership + mode (770)
+# - Avoids confusion and reduces ACL surface area
+
+############################################################
+## 6) ACL Mask Normalization (restore effective group write)
+############################################################
+
+# Command(s) used:
+#   sudo setfacl -m g::rwx,m:rwx ProjectX_policy_first/ui
+#   sudo setfacl -d -m g::rwx,m:rwx ProjectX_policy_first/ui
+
+# Result (getfacl excerpt):
+#   group::rwx
+#   mask::rwx
+#   default:group::rwx
+#   default:mask::rwx
+
+# Notes:
+# - Ensures group write (from mode 770) is not limited by ACL mask.
+# - Ensures children inherit group-write for ui_team (as owning group).
+
+############################################################
+## 7) Boundary Verification
+############################################################
+
+# Command(s) used:
+#   ls -ld ProjectX_policy_first/ui
+#   getfacl ProjectX_policy_first/ui
+
+# Verified Properties (final):
+# - Owner: project_lead
+# - Group: ui_team
+# - Mode: 770
+# - Access ACL:
+#     * core_team: r-x 
+#     * api_team: r-x 
+#     * reviewers: r-x 
+#     * testers: absent
+#     * mask: rwx
+# - Default ACL:
+#     * group::rwx
+#     * core_team/api_team/reviewers: r-x 
+#     * testers: absent
+#     * default mask: rwx

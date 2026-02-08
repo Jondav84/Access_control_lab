@@ -1,0 +1,125 @@
+# ProjectX_policy_first — Root Directory Construction Transcript
+# Model: Reference Architecture (Policy-First)
+# Purpose: Establish a hardened project root with correct ownership, permissions,
+#          and ACL inheritance before any child namespaces exist.
+
+############################################################
+## 1) Directory Creation (structure only)
+############################################################
+
+# Command(s) used:
+#   mkdir -p ProjectX_policy_first
+
+# Result (ls -ld):
+#   drwxrwxr-x 2 <creator> <creator> 4096 <date> ProjectX_policy_first/
+
+# Notes:
+# - Directory exists only as a container.
+# - Ownership and permissions are NOT trusted yet.
+
+
+############################################################
+## 2) Ownership Normalization
+############################################################
+
+# Command(s) used:
+#   sudo chown project_lead:emp_admin ProjectX_policy_first
+
+# Result (ls -ld):
+#   drwxrwxr-x 2 project_lead emp_admin 4096 <date> ProjectX_policy_first/
+
+# Notes:
+# - project_lead is the single accountable authority.
+# - emp_admin provides stewardship visibility only.
+# - No development team owns the project root.
+
+
+############################################################
+## 3) Baseline Permission Boundary
+############################################################
+
+# Command(s) used:
+#   sudo chmod 750 ProjectX_policy_first
+
+# Result (ls -ld):
+#   drwxr-x--- 2 project_lead emp_admin 4096 <date> ProjectX_policy_first/
+
+# Notes:
+# - Root is a structural gate, not a workspace.
+# - Owner: full control.
+# - Group: read/traverse only.
+# - Other: no access.
+
+
+############################################################
+## 4) Access ACLs (Visibility Without Mutation)
+############################################################
+
+# Command(s) used:
+#   sudo setfacl -m \
+#     g:core_team:rx,\
+#     g:api_team:rx,\
+#     g:ui_team:rx,\
+#     g:reviewers:rx,\
+#     g:testers:--x \
+#     ProjectX_policy_first
+
+# Result (getfacl):
+#   user::rwx
+#   group::r-x
+#   group:core_team:r-x
+#   group:api_team:r-x
+#   group:ui_team:r-x
+#   group:reviewers:r-x
+#   group:testers:--x
+#   mask::r-x
+#   other::---
+
+# Notes:
+# - Dev teams can discover namespaces but cannot modify structure.
+# - Reviewers can audit but not change.
+# - Testers receive traverse-only corridor access.
+# - No write access granted outside the owner.
+
+
+############################################################
+## 5) Default ACLs (Inheritance / Drift Prevention)
+############################################################
+
+# Command(s) used:
+#   sudo setfacl -d -m \
+#     g:core_team:rx,\
+#     g:api_team:rx,\
+#     g:ui_team:rx,\
+#     g:reviewers:rx,\
+#     g:testers:--x \
+#     ProjectX_policy_first
+
+# Result (getfacl -d):
+#   default:user::rwx
+#   default:group::r-x
+#   default:group:core_team:r-x
+#   default:group:api_team:r-x
+#   default:group:ui_team:r-x
+#   default:group:reviewers:r-x
+#   default:group:testers:--x
+#   default:mask::r-x
+#   default:other::---
+
+# Notes:
+# - All child directories inherit visibility constraints automatically.
+# - Prevents accidental privilege reintroduction.
+# - Policy enforcement scales without manual reapplication.
+
+
+############################################################
+## 6) Boundary Verification
+############################################################
+
+# Command(s) used:
+#   ls -ld ProjectX_policy_first
+#   getfacl ProjectX_policy_first
+
+# Notes:
+# - Root boundary verified.
+# - Safe parent for all subsequent namespaces.
