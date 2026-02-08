@@ -16,10 +16,12 @@
 #   drwxr-s---+ 2 project_lead emp_admin 4096 <date> ProjectX_policy_first/docs/core/
 
 # Notes:
-# - Directory is created as project_lead to preserve ACL inheritance.
+# - Directory is created as project_lead under the docs/ policy boundary.
 # - Group emp_admin is inherited automatically due to setgid on docs/.
-# - No ownership or group normalization is required at this level.
-# - docs/core is not team-owned; it is a publish-only namespace.
-# - All write authority remains with project_lead.
+# - Access and default ACLs are inherited from docs/ without modification.
+# - No ownership or group normalization occurs or is required at this level.
+# - docs/api is not team-owned; it is a publish-only namespace.
+# - All write authority remains exclusively with project_lead.
 # - Teams and reviewers receive read/traverse access via inherited ACLs.
-# - Testers are excluded by inherited access and default ACL policy.
+# - Testers have no access via inherited access or default ACL policy.
+
