@@ -1,0 +1,47 @@
+# ProjectX_policy_first — testing/ Directory Construction Transcript
+# Model: Reference Architecture (Policy-First)
+# Scope: Execution corridor root for testers
+# Purpose: Allow testers traverse-only access to execution paths while
+#          preventing read or write access to source, documentation, or artifacts.
+
+############################################################
+## 1) Directory Creation (policy owner identity)
+############################################################
+
+# Command(s) used:
+#   sudo -u project_lead mkdir -p ProjectX_policy_first/testing
+
+# Result (initial state; ls -ld):
+#   drwxr-x---+ 2 project_lead project_lead 4096 <date> ProjectX_policy_first/testing/
+
+# Notes:
+# - Directory is created as project_lead to preserve ACL inheritance.
+# - Parent directory does not enforce group inheritance (no setgid).
+# - Group must be normalized explicitly.
+
+
+############################################################
+## 2) Ownership Normalization (governance boundary)
+############################################################
+
+# Command(s) used:
+#   sudo chown project_lead:emp_admin ProjectX_policy_first/testing
+
+# Result (ls -ld):
+#   drwxr-x---+ 2 project_lead emp_admin 4096 <date> ProjectX_policy_first/testing/
+
+# Notes:
+# - emp_admin is the governance group for execution infrastructure.
+# - This step is required only because the parent does not enforce group continuity.
+
+
+############################################################
+## 3) Final State (inherited policy)
+############################################################
+
+# Notes:
+# - testing/ inherits access and default ACLs from the project root.
+# - Testers receive traverse-only access (--x).
+# - Teams and reviewers receive read/traverse access (r-x).
+# - No write access is granted to testers at any level.
+# - No further permission or ACL changes are required.

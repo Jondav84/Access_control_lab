@@ -1,0 +1,111 @@
+# ProjectX_policy_first — testing/bin Directory Construction Transcript
+# Model: Reference Architecture (Policy-First)
+# Scope: Execution-only binary publication path
+# Purpose: Allow testers to execute approved binaries without granting
+#          read or write access, while reserving full publish authority
+#          to project_lead.
+
+############################################################
+## 1) Directory Creation (policy owner identity)
+############################################################
+
+# Command(s) used:
+#   sudo -u project_lead mkdir -p ProjectX_policy_first/testing/bin
+
+# Result (ls -ld):
+#   drwx--x---+ 2 project_lead project_lead 4096 <date> ProjectX_policy_first/testing/bin/
+
+# Notes:
+# - Directory is created as project_lead.
+# - Ownership is singular; no group governance is required here.
+# - Directory is not writable, even by the owner, during normal operation.
+
+
+############################################################
+## 2) Access ACL Pruning (execution-only model)
+############################################################
+
+# Command(s) used:
+#   sudo setfacl -x g:core_team,g:api_team,g:ui_team,g:reviewers \
+#     ProjectX_policy_first/testing/bin
+#   sudo setfacl -d -x g:core_team,g:api_team,g:ui_team,g:reviewers \
+#     ProjectX_policy_first/testing/bin
+
+# Result (getfacl excerpt):
+#   group:testers:--x
+#   mask::--x
+#   default:group:testers:--x
+#   default:mask::--x
+
+# Notes:
+# - Testers are granted execute-only access.
+# - No read or write access is possible via ACL.
+# - No future child objects can inherit read/write permissions.
+
+
+############################################################
+## 3) ACL Mask Hardening (absolute execution enforcement)
+############################################################
+
+# Command(s) used:
+#   sudo setfacl -m m:--x ProjectX_policy_first/testing/bin
+#   sudo setfacl -d -m m:--x ProjectX_policy_first/testing/bin
+
+# Notes:
+# - Mask enforces execute-only semantics even for named entries.
+# - Prevents accidental permission escalation.
+
+
+############################################################
+## 4) Operational Constraint (no in-place modification)
+############################################################
+
+# Notes:
+# - Interactive editors (nano, vi, etc.) cannot operate in this directory.
+# - This is intentional.
+# - testing/bin is immutable during normal operation.
+
+
+############################################################
+## 5) Binary Publication Workflow (canonical)
+############################################################
+
+# Step A: Build and stage binary outside execution corridor
+#   (example path)
+#   /tmp/build/my_binary
+
+# Step B: Verify binary (hash, signature, test run)
+#   sha256sum /tmp/build/my_binary
+
+# Step C: Publish binary atomically as project_lead
+#   sudo -u project_lead mv /tmp/build/my_binary \
+#     ProjectX_policy_first/testing/bin/my_binary
+
+# Step D: Set executable bit (if not already set)
+#   sudo -u project_lead chmod 500 \
+#     ProjectX_policy_first/testing/bin/my_binary
+
+# Notes:
+# - Files are never edited in place.
+# - Publication is a single, auditable action.
+# - Rollback is performed by removal and re-publication.
+
+
+############################################################
+## 6) Boundary Verification
+############################################################
+
+# Command(s) used:
+#   ls -ld ProjectX_policy_first/testing/bin
+#   getfacl ProjectX_policy_first/testing/bin
+
+# Verified Properties:
+# - Owner: project_lead
+# - Effective mode: drwx--x---+
+# - Testers: execute-only
+# - No read or write access possible
+# - Default ACL prevents future drift
+
+# Conclusion:
+# - testing/bin is a hardened, black-box execution corridor.
+# - Operational workflow matches real production systems.

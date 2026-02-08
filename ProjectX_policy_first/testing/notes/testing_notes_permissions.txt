@@ -1,0 +1,108 @@
+# ProjectX_policy_first — testing/notes Directory Construction Transcript
+# Model: Reference Architecture (Policy-First)
+# Scope: Testing guidance and runbook documentation
+# Purpose: Allow project_lead and emp_admin to author and maintain testing notes,
+#          while granting testers and reviewers read-only visibility. No other
+#          roles are permitted access.
+
+############################################################
+## 1) Directory Creation (policy owner identity)
+############################################################
+
+# Command(s) used:
+#   sudo -u project_lead mkdir -p ProjectX_policy_first/testing/notes
+
+# Result (initial state; ls -ld):
+#   drwxr-x---+ 2 project_lead project_lead 4096 <date> ProjectX_policy_first/testing/notes/
+
+# Notes:
+# - Directory is created as project_lead to preserve ACL inheritance.
+# - Parent directory does not enforce group inheritance (no setgid).
+# - Group must be normalized explicitly.
+
+
+############################################################
+## 2) Ownership Normalization (governance boundary)
+############################################################
+
+# Command(s) used:
+#   sudo chown project_lead:emp_admin ProjectX_policy_first/testing/notes
+
+# Result (ls -ld):
+#   drwxr-x---+ 2 project_lead emp_admin 4096 <date> ProjectX_policy_first/testing/notes/
+
+# Notes:
+# - emp_admin represents team-lead governance for testing documentation.
+# - project_lead retains ultimate authority.
+
+
+############################################################
+## 3) Baseline Permission Boundary (authoring space)
+############################################################
+
+# Baseline mode:
+#   770
+
+# Result (ls -ld):
+#   drwxrwx---+ 2 project_lead emp_admin 4096 <date> ProjectX_policy_first/testing/notes/
+
+# Notes:
+# - project_lead and emp_admin have full read/write/execute access.
+# - No baseline access is granted to any other role.
+
+
+############################################################
+## 4) Access ACL Normalization (read-only visibility)
+############################################################
+
+# Command(s) used:
+#   (inherited dev-team ACLs removed)
+#   (tester and reviewer visibility applied)
+
+# Result (getfacl excerpt):
+#   group:testers:r-x
+#   group:reviewers:r-x
+
+# Notes:
+# - Testers can read guidance and traverse the directory.
+# - Reviewers can audit notes without modifying them.
+# - No write access is granted outside the baseline group.
+
+
+############################################################
+## 5) Default ACL Normalization (inheritance control)
+############################################################
+
+# Result (getfacl -d excerpt):
+#   default:group:testers:r-x
+#   default:group:reviewers:r-x
+
+# Notes:
+# - Ensures new files inherit read-only visibility for testers and reviewers.
+# - Prevents accidental write escalation on newly created notes.
+
+
+############################################################
+## 6) Boundary Verification
+############################################################
+
+# Command(s) used:
+#   ls -ld ProjectX_policy_first/testing/notes
+#   getfacl ProjectX_policy_first/testing/notes
+
+# Verified Properties:
+# - Owner: project_lead
+# - Group: emp_admin
+# - Mode: drwxrwx---+
+# - Access ACL:
+#     * testers: r-x
+#     * reviewers: r-x
+# - Default ACL:
+#     * testers: r-x
+#     * reviewers: r-x
+# - No other groups present
+
+# Conclusion:
+# - testing/notes is a controlled documentation workspace.
+# - Authoring is restricted to governance roles.
+# - Testers and reviewers receive visibility without mutation.
