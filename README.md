@@ -5,7 +5,8 @@ Access_control_lab is a practical security engineering project focused on
 in a multi-user environment.
 
 This repository documents both the **design decisions** and the **implemented
-permission model**, with an emphasis on correctness, least privilege, and auditability.
+permission models**, with an emphasis on correctness, least privilege, and
+auditability.
 
 ---
 
@@ -15,7 +16,7 @@ permission model**, with an emphasis on correctness, least privilege, and audita
 - Enforce least-privilege permissions using POSIX permissions and ACLs
 - Validate access paths for different user roles
 - Document security decisions and verification steps
-- Produce a hardened “live” filesystem tree that reflects the model
+- Demonstrate both greenfield design and legacy hardening scenarios
 
 This is not a theoretical exercise; it is a **hands-on implementation** with
 verifiable permissions.
@@ -24,18 +25,38 @@ verifiable permissions.
 
 ## Repository Structure
 
+## Repository Structure
+
 Access_control_lab/
 ├── docs/
-│ ├── SECURITY_MODEL.md
-│ ├── PROJECT_ROOTS.md
-│ ├── TESTING_NOTES.md
-│ └── permissions_diagrams/
+│   ├── SECURITY_MODEL.md
+│   ├── PROJECT_ROOTS.md
+│   ├── TESTING_NOTES.md
+│   └── permissions_diagrams/
 ├── ProjectX_hardened_live/
-│ ├── engineering/
-│ ├── testing/
-│ ├── operations/
-│ └── audit/
+│   ├── core/
+│   ├── api/
+│   ├── ui/
+│   ├── docs/
+│   ├── testing/
+│   └── root_permissions.txt
+├── ProjectX_policy_first/
+│   ├── core/
+│   ├── api/
+│   ├── ui/
+│   ├── docs/
+│   ├── testing/
+│   └── root_permissions.txt
 └── README.md
+
+The two ProjectX trees are intentionally structurally identical.
+
+- ProjectX_policy_first demonstrates greenfield, policy-driven construction.
+- ProjectX_hardened_live demonstrates legacy remediation of an existing tree.
+
+The directory layout is the same so that differences in permissions,
+ACLs, inheritance, and authority boundaries can be compared directly.
+
 
 ---
 
@@ -47,47 +68,54 @@ including (but not limited to):
 - Project leads
 - Engineers
 - Testers
-- Operations / audit roles
+- Reviewers  (audit role)
 
 Permissions are enforced using:
 - Traditional UNIX owner/group/mode bits
 - Default and explicit ACLs
 - Controlled inheritance on directory creation
 
-All decisions are documented under `docs/SECURITY_MODEL.md`.
+All design decisions and role definitions are documented under
+`docs/SECURITY_MODEL.md`.
 
 ---
 
-## Hardened Live Tree
+## Policy-First Reference Architecture (Greenfield Design)
 
-`ProjectX_hardened_live/` represents the **final enforced state** of the filesystem:
-- Permissions are applied and verified
-- Unauthorized access paths are explicitly blocked
-- Group ownership and ACL inheritance are intentional
-
-This directory is the **artifact**, not a mockup.
-
----
-
-## Policy-First Reference Architecture
-
-`ProjectX_policy_first/` documents the **design-first construction** of the
-permission model.
+`ProjectX_policy_first/` demonstrates how to design and construct a directory
+hierarchy **correctly from the start**, with access-control policy driving
+ownership, ACLs, inheritance, and boundaries at creation time.
 
 It shows:
 - how directories are created from an empty state
 - when ownership, ACLs, and inheritance are applied
-- why specific boundaries exist
-- how policy decisions translate into filesystem reality
+- why specific security boundaries exist
+- how policy decisions translate directly into filesystem state
 
-This tree is **not hardened for daily use**.
-It is the **authoritative reference model** used to derive
+This tree represents **greenfield project setup**.
+It is **not** a hardened legacy tree and is **not derived from**
 `ProjectX_hardened_live/`.
 
 If starting a new project:
-- use `ProjectX_policy_first/` to understand and replicate the model
-- use `ProjectX_hardened_live/` to evaluate the final enforced state
+- use `ProjectX_policy_first/` as the authoritative reference model
+- replicate its construction patterns intentionally
 
+---
+
+## Hardened Live Tree (Legacy Remediation)
+
+`ProjectX_hardened_live/` represents a **hardened legacy filesystem tree**.
+
+It demonstrates how to:
+- analyze an existing, populated directory structure
+- identify unsafe or overly permissive defaults
+- apply corrective ownership, permissions, and ACLs
+- enforce least privilege without breaking operation
+
+This tree represents **post-hoc security remediation** of a system that was
+not originally designed with a formal access-control model.
+
+It is a realistic example of securing legacy environments.
 
 ---
 
@@ -105,20 +133,22 @@ Testing notes and validation steps are documented under `docs/`.
 ## Why This Matters (Portfolio Intent)
 
 This project demonstrates:
-- Practical Linux security knowledge
+- Practical Linux security engineering
 - Real permission modeling (not chmod spam)
 - ACL usage beyond basic tutorials
 - Defensive system design
 - Documentation discipline
+- Clear reasoning about access boundaries and trust
 
-It is intended to show how I reason about **access boundaries and trust** in
-multi-user systems.
+It is intended to show how I reason about **both building secure systems
+correctly and fixing insecure systems safely**.
 
 ---
 
 ## Status
 
 - Security model: implemented
-- Hardened tree: complete
+- Policy-first tree: complete
+- Hardened live tree: complete
 - Documentation: in progress
 - Automation: planned (future enhancement)

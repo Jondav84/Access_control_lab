@@ -7,6 +7,12 @@ This document defines what the “roots” and boundary directories mean in this
 It exists to prevent a common failure mode:
 People treat security boundaries as working directories.
 
+This document applies identically to both ProjectX_policy_first/ and
+ProjectX_hardened_live/.
+
+When this document refers to “ProjectX/”, it means “the root of either
+tree”, not a separate directory.
+
 ---
 
 ## Root Boundary: `ProjectX/`
@@ -70,27 +76,35 @@ Set defaults so newly created files/subdirs remain compliant:
 
 ---
 
-## Governance Root: `docs/` (if used)
+## Governance Root: `docs/` (publish-only)
 
 ### Intended meaning
-`docs/` is a controlled collaboration surface, not a free-for-all.
+`docs/` is a **publication boundary**, not a team workspace.
 
-Two valid patterns:
+- `project_lead` is the sole publisher (write authority).
+- `emp_admin` exists for governance continuity and controlled inheritance, not collaborative authoring.
+- Teams and reviewers have read/traverse access to published documentation.
+- Testers are explicitly excluded.
 
-**Pattern A (team namespaces):**
-- `docs/core/`, `docs/api/`, `docs/ui/` each owned by the corresponding team group.
-- Cross-team read via ACL.
-- No global “reviewers notes” or “testers notes” required if feedback uses tickets/PRs.
+### Namespace structure
+`docs/` may be segmented for organization (not ownership), e.g.:
+- `docs/core/`
+- `docs/api/`
+- `docs/ui/`
 
-**Pattern B (steward-owned docs):**
-- `docs/` writable only by `emp_admin`
-- Teams contribute docs through ticket/PR workflow or designated intake paths.
+These namespaces remain **publish-only** and **steward-owned**, and do not grant team write authority.
 
-This repo favors Pattern A for clarity.
+### Enforcement expectations
+- Ownership: `project_lead:emp_admin`
+- Mode: `750` (setgid where group continuity must be enforced)
+- ACLs:
+  - teams/reviewers: `r-x`
+  - testers: no access
+- Default ACLs mirror access ACLs to prevent drift.
 
 ---
 
-## Test Corridor Root: `tests/bin/`
+## Test Corridor Root: `testing/bin/`
 
 ### Intended meaning
 This is the **execution corridor** for black-box testing.
@@ -105,14 +119,14 @@ They should not be able to:
 - write binaries
 
 ### Baseline expectation (lead-only build authority)
-- `tests/` : `750 project_lead:emp_admin`
-- `tests/bin/` : `750 project_lead:emp_admin`
+- `testing/` : `750 project_lead:emp_admin`
+- `testing/bin/` : `750 project_lead:emp_admin`
 
 ### ACL expectations
 - testers: `--x` on:
   - `ProjectX/` (only if needed to reach tests)
-  - `tests/`
-  - `tests/bin/`
+  - `testing/`
+  - `testing/bin/`
 - reviewers: typically none here (or `--x` if needed for traversal only)
 
 ### Default ACL expectations

@@ -18,7 +18,8 @@
 # Notes:
 # - Directory is created as project_lead.
 # - Ownership is singular; no group governance is required here.
-# - Directory is not writable, even by the owner, during normal operation.
+# - Directory is not writable during normal operation due to ACL mask enforcement,
+  not POSIX ownership semantics.
 
 
 ############################################################
@@ -63,7 +64,9 @@
 # Notes:
 # - Interactive editors (nano, vi, etc.) cannot operate in this directory.
 # - This is intentional.
-# - testing/bin is immutable during normal operation.
+# - testing/bin is operationally immutable during normal operation due to ACL
+  mask enforcement and intentional workflow constraints.
+
 
 
 ############################################################

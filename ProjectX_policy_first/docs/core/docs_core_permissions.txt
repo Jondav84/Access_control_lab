@@ -20,7 +20,7 @@
 # - Group emp_admin is inherited automatically due to setgid on docs/.
 # - Access and default ACLs are inherited from docs/ without modification.
 # - No ownership or group normalization occurs or is required at this level.
-# - docs/api is not team-owned; it is a publish-only namespace.
+# - docs/core is not team-owned; it is a publish-only namespace.
 # - All write authority remains exclusively with project_lead.
 # - Teams and reviewers receive read/traverse access via inherited ACLs.
 # - Testers have no access via inherited access or default ACL policy.
