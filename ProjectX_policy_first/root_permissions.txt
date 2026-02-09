@@ -122,4 +122,8 @@
 
 # Notes:
 # - Root boundary verified.
+# - Root defines structure only and does not enforce group inheritance.
+# - setgid is intentionally not applied at this level.
+# - Child namespaces intentionally diverge in group ownership and authority.
 # - Safe parent for all subsequent namespaces.
+

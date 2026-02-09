@@ -109,3 +109,5 @@
 # Conclusion:
 # - testing/bin is a hardened, black-box execution corridor.
 # - Operational workflow matches real production systems.
+# - Documentation for this corridor resides at testing/bin_permissions.txt,
+#   not inside the execution directory itself.

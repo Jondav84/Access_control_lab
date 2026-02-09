@@ -44,5 +44,7 @@
 # - Testers receive traverse-only access (--x).
 # - Teams and reviewers receive read/traverse access (r-x).
 # - No write access is granted to testers at any level.
+# - Default ACLs ensure newly created notes inherit read-only access
+#   for testers and reviewers without permitting write escalation.
 # - No further permission or ACL changes are required.
 

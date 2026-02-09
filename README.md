@@ -69,6 +69,28 @@ This directory is the **artifact**, not a mockup.
 
 ---
 
+## Policy-First Reference Architecture
+
+`ProjectX_policy_first/` documents the **design-first construction** of the
+permission model.
+
+It shows:
+- how directories are created from an empty state
+- when ownership, ACLs, and inheritance are applied
+- why specific boundaries exist
+- how policy decisions translate into filesystem reality
+
+This tree is **not hardened for daily use**.
+It is the **authoritative reference model** used to derive
+`ProjectX_hardened_live/`.
+
+If starting a new project:
+- use `ProjectX_policy_first/` to understand and replicate the model
+- use `ProjectX_hardened_live/` to evaluate the final enforced state
+
+
+---
+
 ## Verification
 
 The project includes:

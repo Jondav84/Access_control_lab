@@ -90,4 +90,5 @@
 # Conclusion:
 # - docs/ is a correct publish-only documentation root.
 # - Group continuity is enforced by setgid.
+# - Testers have no access to documentation at any level.
 # - Safe parent for docs/core, docs/api, docs/ui namespaces.
