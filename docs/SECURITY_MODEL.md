@@ -14,6 +14,11 @@ This repo intentionally contains two “templates”:
 
 Both are valuable. They teach different skills.
 
+These templates are implemented as separate trees:
+- ProjectX_policy_first demonstrates policy-first (greenfield) construction.
+- ProjectX_hardened_live demonstrates legacy hardening of an existing tree.
+The roles defined below apply identically in both contexts.
+
 ---
 
 ## Assumptions
@@ -56,8 +61,6 @@ Governance access does not imply development authority.
 - Full write access only to their own scoped **implementation** directories.
 - Read/traverse access to other teams’ code where required for integration.
 - No write access to other teams’ code.
-
-**Documentation workflow (Publish-only):**
 - Teams author docs in **separate team-owned work areas** (outside the published docs tree).
 - Teams submit docs through team leads to the project lead.
 - Project lead proofs and **publishes** to `ProjectX/docs/<team>/`.
@@ -78,7 +81,7 @@ Purpose:
 
 ---
 
-### Reviewers / Proofers
+### Reviewers (Audit Role)
 - Read-only audit role.
 - No write permissions.
 - No execution permissions.
